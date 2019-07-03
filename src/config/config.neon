@@ -1,0 +1,30 @@
+extensions:
+	console: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
+	rabbitmq: Gamee\RabbitMQ\DI\RabbitMQExtension
+
+services:
+	- App\Consumer\MyConsumer
+	- App\Queue\MyQueue(@Gamee\RabbitMQ\Client::getProducer(myProducer))
+
+rabbitmq:
+	connections:
+		myConnection:
+			user: guest
+			password: guest
+			host: 127.0.0.1
+			port: 5672
+			vhost: /
+
+	queues:
+		myQueue:
+			connection: myConnection
+
+	producers:
+		myProducer:
+			queue: myQueue
+			contentType: application/json
+
+	consumers:
+		myConsumer:
+			queue: myQueue
+			callback: [@App\Consumer\MyConsumer, consume]
